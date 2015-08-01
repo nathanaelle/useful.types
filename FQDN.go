@@ -1,4 +1,4 @@
-package	types
+package	types	// import "github.com/nathanaelle/useful.types"
 
 import (
 	"bytes"
@@ -18,6 +18,16 @@ import (
 //	(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}\.?$)
 
 type	FQDN	string
+
+func (d *FQDN) String() string {
+	return string(*d)
+}
+
+
+func (d *FQDN) UnmarshalTOML(data []byte) (err error) {
+	return d.Set(string(bytes.Trim(data,"\"")))
+}
+
 
 func (d *FQDN) Set(t_fqdn string) (err error) {
 	if len(t_fqdn)< 1 || len(t_fqdn)>253 {
@@ -57,15 +67,6 @@ func (d *FQDN) Set(t_fqdn string) (err error) {
 }
 
 
-func (d *FQDN) String() string {
-	return string(*d)
-}
-
-
-
-func (d *FQDN) UnmarshalTOML(data []byte) (err error) {
-	return d.Set(string(bytes.Trim(data,"\"")))
-}
 
 
 
