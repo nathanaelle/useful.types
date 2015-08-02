@@ -40,8 +40,8 @@ func (d *StoreSize)UnmarshalTOML(data []byte) (err error) {
 	return d.byte_set(bytes.Trim(data,"\""))
 }
 
-func (d *StoreSize)String() string {
-	return strconv.FormatInt(int64(*d),10)
+func (d StoreSize)String() string {
+	return strconv.FormatInt(int64(d),10)
 }
 
 func (d *StoreSize)UnmarshalJSON(data []byte) (err error) {

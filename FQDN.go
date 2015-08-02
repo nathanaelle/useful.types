@@ -32,8 +32,8 @@ func (d *FQDN)MarshalJSON() (data []byte,err error) {
 	return []byte("\""+d.String()+"\""),nil
 }
 
-func (d *FQDN) String() string {
-	return string(*d)
+func (d FQDN) String() string {
+	return string(d)
 }
 
 func (d *FQDN) UnmarshalTOML(data []byte) (err error) {

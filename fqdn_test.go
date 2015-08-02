@@ -34,6 +34,7 @@ func Test_FQDN(t *testing.T)  {
 	}
 
 	for _,val := range l_val {
+		d	:= new(FQDN)
 		data	:= val.data.(FQDN)
 		err	:= d.Set(val.str)
 		if err != nil {

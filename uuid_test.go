@@ -24,6 +24,7 @@ func Test_UUID(t *testing.T)  {
 	}
 
 	for _,val := range l_val {
+		d	:= new(UUID)
 		data	:= val.data.(UUID)
 		err	:= d.Set(val.str)
 		if err != nil {
@@ -53,6 +54,16 @@ func Test_UUID(t *testing.T)  {
 	if !uu.IsValid() {
 		t.Errorf("[%v] invalid parse", uu)
 	}
+
+	uu,err	= NewUUID(UUIDv1_timestamp)
+	if err != nil {
+		t.Errorf("[%v] generator invalid", uu)
+	}
+
+	if !uu.IsValid() {
+		t.Errorf("[%v] invalid parse", uu)
+	}
+
 
 }
 

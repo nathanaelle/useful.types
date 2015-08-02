@@ -26,6 +26,7 @@ func Test_Duration(t *testing.T)  {
 	}
 
 	for _,val := range l_val {
+		d	:= new(Duration)
 		data	:= val.data.(Duration)
 		err	:= d.Set(val.str)
 		if err != nil {

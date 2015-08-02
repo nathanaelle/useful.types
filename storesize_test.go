@@ -40,6 +40,7 @@ func Test_StoreSize(t *testing.T)  {
 	}
 
 	for _,val := range l_val {
+		d	:= new(StoreSize)
 		data	:= val.data.(StoreSize)
 		err	:= d.Set(val.str)
 		if err != nil {

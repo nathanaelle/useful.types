@@ -36,8 +36,8 @@ func (d *Duration)UnmarshalTOML(data []byte) (err error) {
 	return d.byte_set(bytes.Trim(data,"\""))
 }
 
-func (d *Duration)String() string {
-	return time.Duration(*d).String()
+func (d Duration)String() string {
+	return time.Duration(d).String()
 }
 
 func (d *Duration)UnmarshalJSON(data []byte) (err error) {
