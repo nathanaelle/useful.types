@@ -8,11 +8,11 @@ import (
 
 
 
-var	validchar []byte =  []byte{ 'o','B','i','k','K','M','G','T','P','E','Z','Y' }
+var	storesize_validchar []byte =  []byte{ 'o','B','i','k','K','M','G','T','P','E','Z','Y' }
 
 
-func is_validchar(b byte) (bool,int) {
-	for i,valid := range validchar {
+func storesize_is_validchar(b byte) (bool,int) {
+	for i,valid := range storesize_validchar {
 		if b == valid {
 			return true,i
 		}
@@ -26,17 +26,40 @@ func is_validchar(b byte) (bool,int) {
  *	type:		Duration
  *	content:	time duration aka intergers with time units
  */
-type	StoreSize	uint64
+type	StoreSize	int64
 
-func (s *StoreSize) UnmarshalTOML(data []byte) error {
-	tmp_s := bytes.Trim(data,"\"")
+func (d *StoreSize)Set(data string) (err error) {
+	return d.byte_set([]byte(data))
+}
 
-	max		:= len(tmp_s)-1
+func (d *StoreSize)Get() interface{} {
+	return int64(*d)
+}
+
+func (d *StoreSize)UnmarshalTOML(data []byte) (err error) {
+	return d.byte_set(bytes.Trim(data,"\""))
+}
+
+func (d *StoreSize)String() string {
+	return strconv.FormatInt(int64(*d),10)
+}
+
+func (d *StoreSize)UnmarshalJSON(data []byte) (err error) {
+	return d.byte_set(bytes.Trim(data,"\""))
+}
+
+func (d *StoreSize)MarshalJSON() (data []byte,err error) {
+	return []byte("\""+d.String()+"\""),nil
+}
+
+func (d *StoreSize)byte_set(data []byte) (err error) {
+	max		:= len(data)-1
 	digit_only	:= true
 	binary_unit	:= false
 	power		:= 0
+	last_num	:= 0
 
-	for i,b	:= range tmp_s {
+	for i,b	:= range data {
 		if !digit_only {
 			if b == 'i' {
 				if i != max-1 {
@@ -60,10 +83,10 @@ func (s *StoreSize) UnmarshalTOML(data []byte) error {
 		if b >= '0' && b <= '9' {
 			continue
 		}
-
+		last_num	= i
 		digit_only	= false
 
-		ok,pos := is_validchar(b)
+		ok,pos := storesize_is_validchar(b)
 		if  !ok {
 			return errors.New("invalid StoreSize : "+string(data))
 		}
@@ -90,15 +113,23 @@ func (s *StoreSize) UnmarshalTOML(data []byte) error {
 		power=1
 	}
 
-
-	v,_ := strconv.ParseUint(string(tmp_s), 10, 0 )
-
 	if digit_only {
-		*s = StoreSize(v)
+		v,err := strconv.ParseInt(string(data), 10, 64 )
+		if err != nil {
+			return err
+		}
+		*d = StoreSize(v)
 		return nil
 	}
 
-	factor	:= uint64(1000)
+
+	v,err := strconv.ParseInt(string(data[0:last_num]), 10, 64 )
+	if err != nil {
+		return err
+	}
+
+
+	factor	:= int64(1000)
 	if binary_unit {
 		factor = 1024
 	}
@@ -108,7 +139,7 @@ func (s *StoreSize) UnmarshalTOML(data []byte) error {
 		power--
 	}
 
-	*s = StoreSize(v)
+	*d = StoreSize(v)
 
 	return nil
 }

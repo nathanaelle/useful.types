@@ -3,13 +3,28 @@ package	types	// import "github.com/nathanaelle/useful.types"
 import (
 	"bytes"
 	"os"
-	"fmt"
 )
 
 
 
 
 type	Path	string
+
+func (d *Path)Get() interface{} {
+	return string(*d)
+}
+
+func (d *Path) String() string {
+	return string(*d)
+}
+
+func (d *Path)UnmarshalJSON(data []byte) (err error) {
+	return d.Set(string(bytes.Trim(data,"\"")))
+}
+
+func (d *Path)MarshalJSON() (data []byte,err error) {
+	return []byte("\""+d.String()+"\""),nil
+}
 
 func (d *Path) UnmarshalTOML(data []byte) error  {
 	return d.Set(string(bytes.Trim(data,"\"")))
@@ -25,13 +40,9 @@ func (d *Path) Set(data string) (err error) {
 }
 
 
-func (d *Path) String() string {
-	return string(*d)
-}
 
 
-
-
+/*
 type	PathList	[]Path
 
 
@@ -47,3 +58,4 @@ func (d *PathList) Set(data string) (err error) {
 func (d *PathList) String() string {
 	return fmt.Sprintf("%s", *d)
 }
+*/

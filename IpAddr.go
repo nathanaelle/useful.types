@@ -9,16 +9,34 @@ import (
 
 type	IpAddr	net.IP
 
-func (d *IpAddr) UnmarshalTOML(data []byte) error  {
-
-	dest := IpAddr(net.ParseIP(string(bytes.Trim(data,"\""))))
-
+func (d *IpAddr)byte_set(data []byte) (err error) {
+	dest := IpAddr(net.ParseIP(string(data)))
 	if dest == nil {
 		return errors.New("invalid IpAddr : "+string(data))
 	}
 	*d = dest
 
 	return nil
+}
+
+func (d *IpAddr)Get() interface{} {
+	return net.IP(*d)
+}
+
+func (d *IpAddr)UnmarshalTOML(data []byte) (err error) {
+	return d.byte_set(bytes.Trim(data,"\""))
+}
+
+func (d *IpAddr)String() string {
+	return net.IP(*d).String()
+}
+
+func (d *IpAddr)UnmarshalJSON(data []byte) (err error) {
+	return d.byte_set(bytes.Trim(data,"\""))
+}
+
+func (d *IpAddr)MarshalJSON() (data []byte,err error) {
+	return []byte("\""+d.String()+"\""),nil
 }
 
 func (d *IpAddr) ToTCPAddr(port string) (*net.TCPAddr, error)   {

@@ -19,10 +19,22 @@ import (
 
 type	FQDN	string
 
-func (d *FQDN) String() string {
+
+func (d *FQDN)Get() interface{} {
 	return string(*d)
 }
 
+func (d *FQDN)UnmarshalJSON(data []byte) (err error) {
+	return d.Set(string(bytes.Trim(data,"\"")))
+}
+
+func (d *FQDN)MarshalJSON() (data []byte,err error) {
+	return []byte("\""+d.String()+"\""),nil
+}
+
+func (d *FQDN) String() string {
+	return string(*d)
+}
 
 func (d *FQDN) UnmarshalTOML(data []byte) (err error) {
 	return d.Set(string(bytes.Trim(data,"\"")))
@@ -36,25 +48,36 @@ func (d *FQDN) Set(t_fqdn string) (err error) {
 	}
 
 	dot	:= false
-	for _,char := range t_fqdn {
+	hyphen	:= false
+	for pos,char := range t_fqdn {
 		switch	{
 			case char == '\\' :
 				dot	= false
+				hyphen	= false
 
 			case char == '-' :
+				if pos == 0 {
+					return	errors.New("begin with hyphen is forbidden for FQDN ["+t_fqdn+"]")
+				}
 				if (dot) {
-					return	errors.New("hyphen after is forbidden for FQDN ["+t_fqdn+"]")
+					return	errors.New("hyphen after dot is forbidden for FQDN ["+t_fqdn+"]")
 				}
 				dot	= false
+				hyphen	= true
 
 			case char == '.' :
 				if (dot) {
 					return	errors.New("double dot is forbidden for FQDN ["+t_fqdn+"]")
 				}
+				if (hyphen) {
+					return	errors.New("dot after hyphen is forbidden for FQDN ["+t_fqdn+"]")
+				}
 				dot	= true
+				hyphen	= false
 
 			case unicode.IsNumber(char) || unicode.IsLetter(char):
 				dot	= false
+				hyphen	= false
 
 			default:
 				return	errors.New("invalid char ["+string(char)+"] for FQDN ["+t_fqdn+"]")
