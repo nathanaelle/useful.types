@@ -27,10 +27,10 @@ func Test_UUID(t *testing.T)  {
 		data	:= val.data.(UUID)
 		err	:= d.Set(val.str)
 		if err != nil {
-			t.Errorf("[%v] parser invalid", val.str)
+			t.Errorf("[%v] parser invalid [%v]", val.str, err)
 		}
 		if !data.IsValid() {
-			t.Errorf("[%v] invalid source", &data)
+			t.Errorf("[%v] invalid source", data)
 		}
 
 		if !d.IsValid() {
@@ -38,10 +38,10 @@ func Test_UUID(t *testing.T)  {
 		}
 
 		if data.String() != d.String() {
-			t.Errorf("[%v] [%v] differs", &data, d)
+			t.Errorf("[%v] [%v] differs", data, d)
 		}
 		if !data.IsEqual(*d) {
-			t.Errorf("[%v] [%v] differs", &data, d)
+			t.Errorf("[%v] [%v] differs", data, d)
 		}
 	}
 
@@ -57,11 +57,18 @@ func Test_UUID(t *testing.T)  {
 }
 
 
-func Benchmark_UUIDv1(b *testing.B) {
+func Benchmark_UUIDv1_timestamp(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		NewUUID(UUIDv1SortRand)
+		NewUUID(UUIDv1_timestamp)
 	}
 }
+
+func Benchmark_UUIDv1MacRand(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		NewUUID(UUIDv1MacRand)
+	}
+}
+
 
 func Benchmark_UUIDv4(b *testing.B) {
 	for i := 0; i < b.N; i++ {

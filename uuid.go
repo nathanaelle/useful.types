@@ -14,23 +14,23 @@ import	(
 )
 
 const	(
-	UUIDv1		byte	= iota+1
-	UUIDv2
-	UUIDv3
-	UUIDv4
-	UUIDv5
+	UUIDv1		byte	= 0x10
+	UUIDv2			= 0x20
+	UUIDv3			= 0x30
+	UUIDv4			= 0x40
+	UUIDv5			= 0x50
+	UUIDv1MacRand		= 0xe0
+	UUIDv1_timestamp	= 0xf0
 )
 
 
 const	(
-	UUIDRFC		byte	= (iota+8)<<4
-	UUIDvar1
-	UUIDvar2
-	UUIDvar3
-)
+	UUID_NCS	byte	= 0x00
+	UUID_RFC		= 0x80
+	UUID_MS			= 0xc0
+	UUID_UNUSED		= 0xe0
 
-const	UUIDv1Rand	byte	= UUIDv1|UUIDvar1
-const	UUIDv1SortRand	byte	= UUIDv1|UUIDvar2
+)
 
 
 var 	monotonic_v1	uint32	= 0
@@ -50,13 +50,11 @@ type	uuidv1 struct {
 
 
 func NewUUID(version byte) (uuid UUID, err error)  {
-	ver	:= version&0x0f
-	variant	:= version&0xf0
 
 	switch	version {
 		case	UUIDv1:
 			var	hw	[6]byte
-			buffer	:= new(bytes.Buffer)
+			buffer	:= bytes.NewBuffer(make([]byte,0,16))
 
 			copy(hw[:],HardWareAddress[0:6])
 			seq	:= atomic.AddUint32(&monotonic_v1, 1)
@@ -66,15 +64,15 @@ func NewUUID(version byte) (uuid UUID, err error)  {
 				return
 			}
 			t_uuid	:= buffer.Bytes()
-			t_uuid[6]= (t_uuid[6]&0x0f)|(ver<<4)
-			t_uuid[8]= (t_uuid[8]&0x0f)|(UUIDvar1)
+			t_uuid[6]= (t_uuid[6]&0x0f)|(UUIDv1)
+			t_uuid[8]= (t_uuid[8]&0x3f)|(UUID_RFC)
 			copy(uuid[:],t_uuid)
 			return
 
 
-		case	UUIDv1Rand:
+		case	UUIDv1MacRand:
 			var	hw	[6]byte
-			buffer	:= new(bytes.Buffer)
+			buffer	:= bytes.NewBuffer(make([]byte,0,16))
 
 			seq	:= atomic.AddUint32(&monotonic_v1, 1)
 			now	:= uint64(time.Now().UnixNano()/100 + 12219292800000)
@@ -87,28 +85,23 @@ func NewUUID(version byte) (uuid UUID, err error)  {
 				return
 			}
 			t_uuid	:= buffer.Bytes()
-			t_uuid[6]= (t_uuid[6]&0x0f)|(ver<<4)
-			t_uuid[8]= (t_uuid[8]&0x0f)|(variant)
+			t_uuid[6]= (t_uuid[6]&0x0f)|(UUIDv1)
+			t_uuid[8]= (t_uuid[8]&0x3f)|(UUID_RFC)
 			copy(uuid[:],t_uuid)
 			return
 
-		case	UUIDv1SortRand:
-			var	hw	[6]byte
-			buffer	:= new(bytes.Buffer)
+		case	UUIDv1_timestamp:
+			buffer	:= bytes.NewBuffer(make([]byte,0,16))
 
 			seq	:= atomic.AddUint32(&monotonic_v1, 1)
 			now	:= uint64(time.Now().UnixNano()/100 + 12219292800000)
-			_, err = rand.Read(hw[:])
-			if err !=nil {
-				return
-			}
-			err	= binary.Write(buffer, binary.BigEndian, uuidv1{ uint32(now>>32), uint16(now>>16), uint16(now>>4), uint16(seq), hw })
+			err	= binary.Write(buffer, binary.BigEndian, uuidv1{ uint32(now>>32), uint16(now>>16), uint16(now>>4), uint16(seq), [6]byte{'s','o','r','t','b','l'} })
 			if err !=nil {
 				return
 			}
 			t_uuid	:= buffer.Bytes()
-			t_uuid[6]= (t_uuid[6]&0x0f)|(ver<<4)
-			t_uuid[8]= (t_uuid[8]&0x0f)|(variant)
+			t_uuid[6]= (t_uuid[6]&0x0f)|(UUIDv1)
+			t_uuid[8]= (t_uuid[8]&0x3f)|(UUID_RFC)
 			copy(uuid[:],t_uuid)
 			return
 
@@ -118,8 +111,8 @@ func NewUUID(version byte) (uuid UUID, err error)  {
 			if err !=nil {
 				return
 			}
-			uuid[6]= (uuid[6]&0x0f)|(ver<<4)
-			uuid[8]= (uuid[8]&0x0f)|(UUIDRFC)
+			uuid[6]= (uuid[6]&0x0f)|(UUIDv4)
+			uuid[8]= (uuid[8]&0x3f)|(UUID_RFC)
 			return
 
 		default:
@@ -134,32 +127,36 @@ func (d *UUID)Get() interface{} {
 }
 
 func (d *UUID)UnmarshalTOML(data []byte) (err error) {
-	return d.Set(string(bytes.Trim(data,"\"")))
+	return d.byte_set(bytes.Trim(data,"\""))
 }
 
-func (d *UUID)String() string {
+func (d UUID)String() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x",d[0:4],d[4:6],d[6:8],d[8:10],d[10:16])
 }
 
 func (d *UUID)UnmarshalJSON(data []byte) (err error) {
-	return d.Set(string(bytes.Trim(data,"\"")))
+	return d.byte_set(bytes.Trim(data,"\""))
 }
 
 func (d *UUID)MarshalJSON() (data []byte,err error) {
 	return []byte("\""+d.String()+"\""),nil
 }
 
+func (d *UUID)Set(data string) (err error) {
+	return d.byte_set([]byte(data))
+}
 
-func (d *UUID) Set(uuid string) (err error) {
+
+func (d *UUID) byte_set(uuid []byte) (err error) {
 	t_uuid	:= [16]byte{}
-	t_d	:= bytes.Split([]byte(uuid),[]byte{'-'})
+	t_d	:= bytes.Split(uuid,[]byte{'-'})
 
 	if len(t_d) != 5 {
-		return errors.New("not a uuid : ["+ uuid +"]")
+		return errors.New("not a uuid : ["+ string(uuid) +"]")
 	}
 
 	if len(t_d[0]) != 8 {
-		return errors.New("not a uuid : ["+ uuid +"]")
+		return errors.New("not a uuid : ["+ string(uuid) +"]")
 	}
 	_,err	= hex.Decode(t_uuid[0:4],t_d[0])
 	if err	!= nil {
@@ -168,7 +165,7 @@ func (d *UUID) Set(uuid string) (err error) {
 
 
 	if len(t_d[1]) != 4 || len(t_d[2]) != 4 || len(t_d[3]) != 4 {
-		return errors.New("not a uuid : ["+ uuid +"]")
+		return errors.New("not a uuid : ["+ string(uuid) +"]")
 	}
 	_,err	= hex.Decode(t_uuid[4:6],t_d[1])
 	if err	!= nil {
@@ -184,23 +181,26 @@ func (d *UUID) Set(uuid string) (err error) {
 	}
 
 	if len(t_d[4]) != 12 {
-		return errors.New("not a uuid : ["+ uuid +"]")
+		return errors.New("not a uuid : ["+ string(uuid) +"]")
 	}
 	_,err	= hex.Decode(t_uuid[10:16],t_d[4])
 	if err	!= nil {
 		return
 	}
 
-	switch t_uuid[6]>>4 {
+	switch t_uuid[6]&0xf0 {
 		case UUIDv1,UUIDv2,UUIDv3,UUIDv4,UUIDv5:
 		default:
-			return errors.New("unknown version : ["+ uuid +"]")
+			return errors.New("unknown version : ["+ string(uuid) +"]")
 	}
 
-	switch t_uuid[8]&0xf0 {
-		case UUIDvar1,UUIDvar2,UUIDvar3,UUIDRFC:
+	switch {
+		case (t_uuid[8]&0x80)==UUID_NCS:
+		case (t_uuid[8]&0xc0)==UUID_RFC:
+		case (t_uuid[8]&0xe0)==UUID_MS:
+		case (t_uuid[8]&0xe0)==UUID_UNUSED:
 		default:
-			err= errors.New("unknown variant : ["+ uuid +"]")
+			err= errors.New("unknown variant : ["+ string(uuid) +"]")
 			return
 	}
 	*d = UUID(t_uuid)
@@ -212,14 +212,18 @@ func (d *UUID) Set(uuid string) (err error) {
 func (u UUID)IsValid() bool {
 	t_d := [16]byte(u)
 
-	switch t_d[6]>>4 {
+	switch t_d[6]&0xf0 {
 		case UUIDv1,UUIDv2,UUIDv3,UUIDv4,UUIDv5:
 		default:
 			return false
 	}
 
-	switch t_d[8]&0xf0 {
-		case UUIDvar1,UUIDvar2,UUIDvar3,UUIDRFC:
+	switch {
+		case (t_d[8]&0x80)==UUID_NCS:
+		case (t_d[8]&0xc0)==UUID_RFC:
+		case (t_d[8]&0xe0)==UUID_MS:
+		case (t_d[8]&0xe0)==UUID_UNUSED:
+
 		default:
 			return false
 	}
