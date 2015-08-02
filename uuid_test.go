@@ -68,7 +68,17 @@ func Test_UUID(t *testing.T)  {
 }
 
 
-func Benchmark_UUIDv1_timestamp(b *testing.B) {
+
+func Benchmark_UUID_Set(b *testing.B) {
+	d	:= new(UUID)
+	for i := 0; i < b.N; i++ {
+		d.Set("de305d54-75b4-431b-adb2-eb6b9e546014")
+	}
+}
+
+
+
+func Benchmark_UUIDv1_TS(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		NewUUID(UUIDv1_timestamp)
 	}

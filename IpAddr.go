@@ -6,7 +6,8 @@ import (
 	"net"
 )
 
-
+// Wrapper Type for net.IP providing missing interfaces
+// All the parsing and the validation are done by net.ParseIP
 type	IpAddr	net.IP
 
 func (d *IpAddr)byte_set(data []byte) (err error) {

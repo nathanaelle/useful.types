@@ -5,14 +5,8 @@ import (
 	"time"
 )
 
-
-
-
-
-/*
- *	type:		Duration
- *	content:	time duration aka intergers with time units
- */
+// Wrapper Type for time.Duration providing missing interfaces
+// All the parsing and the validation are done by time.ParseDuration
 type Duration time.Duration
 
 func (d *Duration)Set(data string) (err error) {

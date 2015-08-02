@@ -52,3 +52,11 @@ func Test_StoreSize(t *testing.T)  {
 		}
 	}
 }
+
+
+func Benchmark_StoreSize_Set(b *testing.B) {
+	d	:= new(StoreSize)
+	for i := 0; i < b.N; i++ {
+		d.Set("12345Tio")
+	}
+}

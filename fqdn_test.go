@@ -46,3 +46,12 @@ func Test_FQDN(t *testing.T)  {
 		}
 	}
 }
+
+
+
+func Benchmark_FQDN_Set(b *testing.B) {
+	d	:= new(FQDN)
+	for i := 0; i < b.N; i++ {
+		d.Set("www.sub-zone.example.")
+	}
+}

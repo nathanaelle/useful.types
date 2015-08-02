@@ -14,9 +14,6 @@ import (
  *			don't verify if the tld exists
  *			don't handle conversion from unicode to punycode
  */
-//	fqdn validation
-//	(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}\.?$)
-
 type	FQDN	string
 
 

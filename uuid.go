@@ -35,6 +35,7 @@ const	(
 
 var 	monotonic_v1	uint32	= 0
 
+// HardWareAddress must be set with the desired MAC Address before the generation of a RFC UUIDv1
 var	HardWareAddress	net.HardwareAddr
 
 type	UUID	[16]byte
@@ -95,7 +96,7 @@ func NewUUID(version byte) (uuid UUID, err error)  {
 
 			seq	:= atomic.AddUint32(&monotonic_v1, 1)
 			now	:= uint64(time.Now().UnixNano()/100 + 12219292800000)
-			err	= binary.Write(buffer, binary.BigEndian, uuidv1{ uint32(now>>32), uint16(now>>16), uint16(now>>4), uint16(seq), [6]byte{'s','o','r','t','b','l'} })
+			err	= binary.Write(buffer, binary.BigEndian, uuidv1{ uint32(now>>32), uint16(now>>16), uint16(now>>4), uint16(seq), [6]byte{0,0,0,0,0,0} })
 			if err !=nil {
 				return
 			}

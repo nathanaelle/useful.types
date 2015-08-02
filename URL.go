@@ -6,8 +6,8 @@ import (
 )
 
 
-
-
+// Wrapper Type for url.URL providing missing interfaces
+// All the parsing and the validation are done by url.Parse
 type	URL	url.URL
 
 
