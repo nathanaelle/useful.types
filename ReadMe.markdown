@@ -19,13 +19,14 @@ there are essentialy for the marshaling and unmarshaling of data with a minimum 
 
 ## Provided types
 
-  * Duration
-  * FQDN
-  * IpAddr
-  * path
-  * URL
-  * StoreSize
-  * UUID
+  * [ ] BitSet
+  * [x] Duration
+  * [x] FQDN
+  * [x] IpAddr
+  * [x] path
+  * [x] URL
+  * [x] StoreSize
+  * [x] UUID
 
 
 ## License
