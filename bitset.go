@@ -1,3 +1,5 @@
+// + build ignore
+
 package	types	// import "github.com/nathanaelle/useful.types"
 
 import (
@@ -32,8 +34,21 @@ func (bs *BitSet)byte_set(data64 []byte) error {
 	data	:= make([]byte,base64.URLEncoding.DecodedLen(len(data64)))
 	_,err	:= base64.URLEncoding.Decode(data,data64)
 	if err != nil {
+		return err
+	}
+
+	if len(data) == 0 {
+		bs.loglength = 0
+		bs.set = []uint64{}
 		return nil
 	}
+
+	if len(data) == 1 && data[0] == 0 {
+		bs.loglength = 0
+		bs.set = []uint64{}
+		return nil
+	}
+
 
 	if data[0] <7 {
 		bs.set	= make([]uint64, 1)
@@ -81,4 +96,47 @@ func (bs *BitSet)UnmarshalJSON(data []byte) (err error) {
 
 func (bs *BitSet)MarshalJSON() (data []byte,err error) {
 	return []byte("\""+bs.String()+"\""),nil
+}
+
+
+
+func (bs BitSet) Union(b2 BitSet) BitSet {
+	b_a, b_b := bs, b2
+
+	if b_a.loglength < b_b.loglength {
+		b_a, b_b = b_b, b_a
+	}
+
+	ret := NewBitSet(b_a.loglength)
+
+	i := 0
+	for i < len(b_b.set) {
+		ret.set[i] = b_a.set[i] | b_b.set[i]
+		i++
+	}
+
+	for i < len(b_a.set) {
+		ret.set[i] = b_a.set[i]
+		i++
+	}
+
+	return *ret
+}
+
+func (bs BitSet) Intersection(b2 BitSet) BitSet {
+	b_a, b_b := bs, b2
+
+	if b_a.loglength < b_b.loglength {
+		b_a, b_b = b_b, b_a
+	}
+
+	ret := NewBitSet(b_a.loglength)
+
+	i := 0
+	for i < len(b_b.set) {
+		ret.set[i] = b_a.set[i] & b_b.set[i]
+		i++
+	}
+
+	return *ret
 }
