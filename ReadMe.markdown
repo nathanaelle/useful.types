@@ -1,5 +1,7 @@
 # useful.types
 
+Branch: master — [![master|Build Status](https://travis-ci.org/nathanaelle/useful.types.svg?branch=master)](https://travis-ci.org/nathanaelle/useful.types)
+
 
 ## What is useful.types ?
 
