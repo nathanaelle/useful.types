@@ -1,0 +1,10 @@
+language: go
+go:
+- 1.4
+- 1.5
+- tip
+branches:
+  only:
+  - master
+install:
+- go get github.com/nathanaelle/useful.types
