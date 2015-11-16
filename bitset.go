@@ -1,27 +1,33 @@
-// + build ignore
-
 package	types	// import "github.com/nathanaelle/useful.types"
 
 import (
 	"bytes"
+	"errors"
 	"encoding/binary"
 	"encoding/base64"
 )
 
 
 type BitSet struct {
-  loglength	uint8
+  length	uint64
   set		[]uint64
 }
 
 
-// Create a bitset that contains 2^loglength bits
-// Caution ! a loglength of 33 means 8Gibits so it uses 1Go of RAM
-func NewBitSet(loglength uint8) *BitSet {
-	if loglength <7 {
-		return	&BitSet{ loglength, make([]uint64, 1) }
+
+func u64len(l uint64) uint64 {
+	if l%64 == 0 {
+		return uint64(l/64)
 	}
-	return	&BitSet{ loglength, make([]uint64, 1<<(loglength-6)) }
+	return uint64(l/64)+1
+}
+
+
+
+func NewBitSet(length uint64) *BitSet {
+	l64 := u64len(length)
+
+	return	&BitSet{ length, make([]uint64, l64) }
 }
 
 
@@ -30,41 +36,50 @@ func (bs *BitSet)Set(data string) error {
 }
 
 
-func (bs *BitSet)byte_set(data64 []byte) error {
+func (bs *BitSet)byte_set(data64 []byte) (err error) {
 	data	:= make([]byte,base64.URLEncoding.DecodedLen(len(data64)))
-	_,err	:= base64.URLEncoding.Decode(data,data64)
+	_,err	= base64.URLEncoding.Decode(data,data64)
 	if err != nil {
-		return err
+		return
 	}
 
 	if len(data) == 0 {
-		bs.loglength = 0
+		bs.length = 0
 		bs.set = []uint64{}
 		return nil
 	}
 
-	if len(data) == 1 && data[0] == 0 {
-		bs.loglength = 0
-		bs.set = []uint64{}
-		return nil
+	reader	:= bytes.NewReader(data)
+	length	:= uint64(0)
+
+	err	= binary.Read(reader, binary.BigEndian, &length)
+	if err != nil {
+		return
 	}
 
-
-	if data[0] <7 {
-		bs.set	= make([]uint64, 1)
-	} else {
-		bs.set	= make([]uint64, 1<<(data[0]-6))
+	if uint64(len(data)) < (8*(length+1)) {
+		return errors.New("Not a BitSet")
 	}
-	return	binary.Read(bytes.NewReader(data), binary.BigEndian, bs)
+
+	bs.length = length
+	bs.set	= make([]uint64, length)
+
+	return	binary.Read(reader, binary.BigEndian, bs.set)
 }
 
 
-func (bs *BitSet)byte_get() ([]byte,error) {
-	data	:= bytes.NewBuffer(make([]byte,0,1+(1<<(bs.loglength-3))))
-	err	:= binary.Write(data, binary.BigEndian, bs)
+func (bs BitSet)byte_get() (buff []byte, err error) {
+	data	:= bytes.NewBuffer(make([]byte,0,8*(bs.length+1)))
+	err	= binary.Write(data, binary.BigEndian, bs.length)
 	if err != nil {
 		return []byte{},err
 	}
+
+	err	= binary.Write(data, binary.BigEndian, bs.set[0:bs.length])
+	if err != nil {
+		return []byte{},err
+	}
+
 	data64	:= make([]byte,base64.URLEncoding.EncodedLen(data.Len()))
 	base64.URLEncoding.Encode(data64,data.Bytes())
 
@@ -84,7 +99,10 @@ func (bs BitSet)Get() interface{} {
 
 
 func (bs BitSet)String() string {
-	d,_ := bs.byte_get()
+	d,err := bs.byte_get()
+	if err != nil {
+		return err.Error()
+	}
 	return string(d)
 }
 
@@ -94,20 +112,45 @@ func (bs *BitSet)UnmarshalJSON(data []byte) (err error) {
 }
 
 
-func (bs *BitSet)MarshalJSON() (data []byte,err error) {
+func (bs BitSet)MarshalJSON() (data []byte,err error) {
 	return []byte("\""+bs.String()+"\""),nil
 }
 
+
+func (bs BitSet) Bit(pos uint64, value bool) BitSet {
+	var ret	*BitSet
+
+	mod	:= uint(pos%uint64(64))
+	idx	:= uint64(pos/uint64(64))
+	target	:= uint64(uint64(1)<<mod)
+
+	switch idx < bs.length {
+	case	true:
+		ret = NewBitSet(bs.length)
+	case	false:
+		ret = NewBitSet(idx+1)
+	}
+	copy(ret.set[0:bs.length], bs.set[0:bs.length])
+
+	switch value {
+	case	true:
+		ret.set[idx] |= target
+	case	false:
+		ret.set[idx] &^= target
+	}
+
+	return *ret
+}
 
 
 func (bs BitSet) Union(b2 BitSet) BitSet {
 	b_a, b_b := bs, b2
 
-	if b_a.loglength < b_b.loglength {
+	if b_a.length < b_b.length {
 		b_a, b_b = b_b, b_a
 	}
 
-	ret := NewBitSet(b_a.loglength)
+	ret := NewBitSet(b_a.length)
 
 	i := 0
 	for i < len(b_b.set) {
@@ -123,14 +166,15 @@ func (bs BitSet) Union(b2 BitSet) BitSet {
 	return *ret
 }
 
+
 func (bs BitSet) Intersection(b2 BitSet) BitSet {
 	b_a, b_b := bs, b2
 
-	if b_a.loglength < b_b.loglength {
+	if b_a.length < b_b.length {
 		b_a, b_b = b_b, b_a
 	}
 
-	ret := NewBitSet(b_a.loglength)
+	ret := NewBitSet(b_a.length)
 
 	i := 0
 	for i < len(b_b.set) {
