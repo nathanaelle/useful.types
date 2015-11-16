@@ -1,6 +1,6 @@
 # useful.types
 
-Branch: master — [![master|Build Status](https://travis-ci.org/nathanaelle/useful.types.svg?branch=master)](https://travis-ci.org/nathanaelle/useful.types)
+![License](http://img.shields.io/badge/license-Simplified_BSD-blue.svg?style=flat) [![Go Doc](http://img.shields.io/badge/godoc-useful.types-blue.svg?style=flat)](http://godoc.org/github.com/nathanaelle/useful.types) [![Build Status](https://travis-ci.org/nathanaelle/useful.types.svg?branch=master)](https://travis-ci.org/nathanaelle/useful.types)
 
 
 ## What is useful.types ?
@@ -10,11 +10,11 @@ there are essentialy for the marshaling and unmarshaling of data with a minimum 
 
 ## Implemented interfaces
 
-  * [fmt.Stringer](https://golang.org/pkg/fmt/#Stringer)
-  * [flag.Value](https://golang.org/pkg/flag/#Value)
-  * [json.Unmarshaler](https://golang.org/pkg/encoding/json/#Unmarshaler)
-  * [json.Marshaler](https://golang.org/pkg/encoding/json/#Marshaler)
-  * [toml.Unmarshaler](https://godoc.org/github.com/naoina/toml#Unmarshaler)
+  * [x] [fmt.Stringer](https://golang.org/pkg/fmt/#Stringer)
+  * [x] [flag.Value](https://golang.org/pkg/flag/#Value)
+  * [x] [json.Unmarshaler](https://golang.org/pkg/encoding/json/#Unmarshaler)
+  * [x] [json.Marshaler](https://golang.org/pkg/encoding/json/#Marshaler)
+  * [x] [toml.Unmarshaler](https://godoc.org/github.com/naoina/toml#Unmarshaler)
 
 
 ## Provided types
@@ -36,4 +36,4 @@ there are essentialy for the marshaling and unmarshaling of data with a minimum 
 
   * write comments
   * clean some ugly stuff
-  * add tests
+  * add more tests
