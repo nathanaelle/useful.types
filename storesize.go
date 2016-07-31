@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"strconv"
-	_ "math"
-
 )
 
 
@@ -146,8 +144,12 @@ func (d *StoreSize)byte_set(data []byte) (err error) {
 }
 
 
-/*
+
 func (d *StoreSize)byte_text() []byte {
+	return	append(strconv.AppendInt(make([]byte,0,22), int64(*d), 10), 'B')
+}
+
+/*func (d *StoreSize)byte_text_exp() []byte {
 	l_text	:= 0
 	v_i	:= int64(*d)
 	neg	:= false
@@ -194,12 +196,9 @@ func (d *StoreSize)UnmarshalText(data []byte) (err error) {
 	return d.byte_set(data)
 }
 
-
 func (d *StoreSize)MarshalText() ([]byte,error) {
-	return []byte(d.String()),nil
+	return d.byte_text(),nil
 }
-
-
 
 func (d StoreSize)String() string {
 	return strconv.FormatInt(int64(d),10)
@@ -210,5 +209,5 @@ func (d *StoreSize)UnmarshalJSON(data []byte) (err error) {
 }
 
 func (d *StoreSize)MarshalJSON() (data []byte,err error) {
-	return []byte("\""+d.String()+"\""),nil
+	return append(append([]byte{'"'}, d.byte_text()...), '"'),nil
 }
