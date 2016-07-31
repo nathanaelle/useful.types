@@ -21,7 +21,6 @@ func (d *Duration)byte_set(data []byte) (err error) {
 	return err
 }
 
-
 func (d *Duration)Get() interface{} {
 	return time.Duration(*d)
 }
@@ -40,4 +39,12 @@ func (d *Duration)UnmarshalJSON(data []byte) (err error) {
 
 func (d *Duration)MarshalJSON() (data []byte,err error) {
 	return []byte("\""+d.String()+"\""),nil
+}
+
+func (d *Duration)UnmarshalText(data []byte) (err error) {
+	return d.byte_set(data)
+}
+
+func (d *Duration)MarshalText() (data []byte,err error) {
+	return []byte(d.String()),nil
 }

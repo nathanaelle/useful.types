@@ -29,6 +29,16 @@ func (d *FQDN)MarshalJSON() (data []byte,err error) {
 	return []byte("\""+d.String()+"\""),nil
 }
 
+func (d *FQDN)UnmarshalText(data []byte) (err error) {
+	return d.Set(string(data))
+}
+
+func (d *FQDN)MarshalText() (data []byte,err error) {
+	return []byte(d.String()),nil
+}
+
+
+
 func (d FQDN) String() string {
 	return string(d)
 }

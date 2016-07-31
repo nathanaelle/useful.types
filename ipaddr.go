@@ -24,6 +24,13 @@ func (d *IpAddr)Get() interface{} {
 	return net.IP(*d)
 }
 
+func (d *IpAddr)Set(data string) error {
+	return d.byte_set([]byte(data))
+}
+
+
+
+
 func (d *IpAddr)UnmarshalTOML(data []byte) (err error) {
 	return d.byte_set(bytes.Trim(data,"\""))
 }
@@ -39,6 +46,15 @@ func (d *IpAddr)UnmarshalJSON(data []byte) (err error) {
 func (d *IpAddr)MarshalJSON() (data []byte,err error) {
 	return []byte("\""+d.String()+"\""),nil
 }
+
+func (d *IpAddr)UnmarshalText(data []byte) (err error) {
+	return d.byte_set(data)
+}
+
+func (d *IpAddr)MarshalText() (data []byte,err error) {
+	return []byte(d.String()),nil
+}
+
 
 func (d *IpAddr) ToTCPAddr(port string) (*net.TCPAddr, error)   {
 	ip := net.IP(*d)

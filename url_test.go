@@ -5,5 +5,6 @@ import (
 )
 
 func Test_URL(t *testing.T)  {
-	t.Skip()
+	d	:= new(URL)
+	Has_All_Interfaces(t,d)
 }

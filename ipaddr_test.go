@@ -5,5 +5,6 @@ import (
 )
 
 func Test_IPAddr(t *testing.T)  {
-	t.Skip()
+	d	:= new(IpAddr)
+	Has_All_Interfaces(t,d)
 }

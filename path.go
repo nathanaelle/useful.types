@@ -26,6 +26,16 @@ func (d *Path)MarshalJSON() (data []byte,err error) {
 	return []byte("\""+d.String()+"\""),nil
 }
 
+func (d *Path)UnmarshalText(data []byte) (err error) {
+	return d.Set(string(data))
+}
+
+func (d *Path)MarshalText() (data []byte,err error) {
+	return []byte(d.String()),nil
+}
+
+
+
 func (d *Path) UnmarshalTOML(data []byte) error  {
 	return d.Set(string(bytes.Trim(data,"\"")))
 }

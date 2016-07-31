@@ -60,3 +60,12 @@ func Benchmark_StoreSize_Set(b *testing.B) {
 		d.Set("12345Tio")
 	}
 }
+
+
+func Benchmark_StoreSize_String(b *testing.B) {
+	d	:= new(StoreSize)
+	d.Set("12345Tio")
+	for i := 0; i < b.N; i++ {
+		d.String()
+	}
+}

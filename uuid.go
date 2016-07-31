@@ -104,18 +104,6 @@ func NewUUID(version byte) (uuid UUID, err error)  {
 
 }
 
-func (d *UUID)Get() interface{} {
-	return [16]byte(*d)
-}
-
-func (d *UUID)UnmarshalTOML(data []byte) (err error) {
-	return d.byte_set(bytes.Trim(data,"\""))
-}
-
-func (d *UUID)MarshalText() ([]byte,error) {
-	return	d.byte_text(make([]byte,36)), nil
-}
-
 
 func (d *UUID)byte_text(t []byte) []byte {
 	if len(t) < 36 {
@@ -132,29 +120,6 @@ func (d *UUID)byte_text(t []byte) []byte {
 	hex.Encode(t[24:36], d[10:16])
 
 	return	t
-}
-
-
-func (d *UUID)String() string {
-	return string(d.byte_text(make([]byte,36)))
-}
-
-func (d *UUID)UnmarshalJSON(data []byte) (err error) {
-	return d.byte_set(bytes.Trim(data,"\""))
-}
-
-func (d *UUID)MarshalJSON() (data []byte,err error) {
-	t := make([]byte,38)
-	t[0] = '"'
-	t[37]= '"'
-
-	d.byte_text(t[1:37])
-
-	return t,nil
-}
-
-func (d *UUID)Set(data string) (err error) {
-	return d.byte_set([]byte(data))
 }
 
 
@@ -219,6 +184,45 @@ func (d *UUID) byte_set(uuid []byte) (err error) {
 	return nil
 }
 
+
+
+func (d *UUID)Get() interface{} {
+	return [16]byte(*d)
+}
+
+func (d *UUID)UnmarshalTOML(data []byte) (err error) {
+	return d.byte_set(bytes.Trim(data,"\""))
+}
+
+func (d *UUID)MarshalText() ([]byte,error) {
+	return	d.byte_text(make([]byte,36)), nil
+}
+
+func (d *UUID)UnmarshalText(data[]byte) error {
+	return	d.byte_set(data)
+}
+
+func (d *UUID)String() string {
+	return string(d.byte_text(make([]byte,36)))
+}
+
+func (d *UUID)UnmarshalJSON(data []byte) (err error) {
+	return d.byte_set(bytes.Trim(data,"\""))
+}
+
+func (d *UUID)MarshalJSON() (data []byte,err error) {
+	t := make([]byte,38)
+	t[0] = '"'
+	t[37]= '"'
+
+	d.byte_text(t[1:37])
+
+	return t,nil
+}
+
+func (d *UUID)Set(data string) (err error) {
+	return d.byte_set([]byte(data))
+}
 
 func (u UUID)IsValid() bool {
 	t_d := [16]byte(u)

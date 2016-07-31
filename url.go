@@ -40,3 +40,11 @@ func (d *URL)UnmarshalJSON(data []byte) (err error) {
 func (d *URL)MarshalJSON() (data []byte,err error) {
 	return []byte("\""+d.String()+"\""),nil
 }
+
+func (d *URL)UnmarshalText(data []byte) (err error) {
+	return d.Set(string(data))
+}
+
+func (d *URL)MarshalText() (data []byte,err error) {
+	return []byte(d.String()),nil
+}

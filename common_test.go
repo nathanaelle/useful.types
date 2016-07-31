@@ -6,6 +6,7 @@ import	(
 	"flag"
 	"fmt"
 	"encoding/json"
+	"encoding"
 )
 
 
@@ -21,24 +22,41 @@ type	valid_t struct {
 
 func Has_All_Interfaces(t *testing.T,usefultype interface{})  {
 	if !Is_fmt_stringer(usefultype) {
-		t.Errorf("not %20s  : %#v", "fmt.Stringer", usefultype)
+		t.Errorf("not %25s  : %#v", "fmt.Stringer", usefultype)
 	}
+
 	if !Is_flag_value(usefultype) {
-		t.Errorf("not %20s  : %#v", "flag.Value", usefultype)
+		t.Errorf("not %25s  : %#v", "flag.Value", usefultype)
 	}
 	if !Is_flag_getter(usefultype) {
-		t.Errorf("not %20s  : %#v", "flag.Getter", usefultype)
+		t.Errorf("not %25s  : %#v", "flag.Getter", usefultype)
 	}
+
 	if !Is_json_marshaler(usefultype) {
-		t.Errorf("not %20s  : %#v", "json.Marshaler", usefultype)
+		t.Errorf("not %25s  : %#v", "json.Marshaler", usefultype)
 	}
 	if !Is_json_unmarshaler(usefultype) {
-		t.Errorf("not %20s  : %#v", "json.Unmarshaler", usefultype)
+		t.Errorf("not %25s  : %#v", "json.Unmarshaler", usefultype)
+	}
+
+	if !Is_encoding_textmarshaler(usefultype) {
+		t.Errorf("not %25s  : %#v", "encoding.TextMarshaler", usefultype)
+	}
+	if !Is_encoding_textunmarshaler(usefultype) {
+		t.Errorf("not %25s  : %#v", "encoding.TextUnmarshaler", usefultype)
 	}
 }
 
 
+func Is_encoding_textmarshaler(i interface{}) bool {
+	_,ok := i.(encoding.TextMarshaler)
+	return ok
+}
 
+func Is_encoding_textunmarshaler(i interface{}) bool {
+	_,ok := i.(encoding.TextUnmarshaler)
+	return ok
+}
 
 func Is_fmt_stringer(i interface{}) bool {
 	_,ok := i.(fmt.Stringer)

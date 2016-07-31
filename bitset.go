@@ -117,6 +117,16 @@ func (bs BitSet)MarshalJSON() (data []byte,err error) {
 }
 
 
+func (bs *BitSet)UnmarshalText(data []byte) (err error) {
+	return bs.byte_set(data)
+}
+
+
+func (bs BitSet)MarshalText() (data []byte,err error) {
+	return []byte(bs.String()),nil
+}
+
+
 func (bs BitSet) Bit(pos uint64, value bool) BitSet {
 	var ret	*BitSet
 
