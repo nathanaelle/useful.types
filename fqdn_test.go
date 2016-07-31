@@ -53,3 +53,19 @@ func Benchmark_FQDN_Set(b *testing.B) {
 		d.Set("www.sub-zone.example.")
 	}
 }
+
+func Benchmark_FQDN_String(b *testing.B) {
+	d := new(FQDN)
+	d.Set("www.sub-zone.example.")
+	for i := 0; i < b.N; i++ {
+		d.String()
+	}
+}
+
+func Benchmark_FQDN_MarshalText(b *testing.B) {
+	d := new(FQDN)
+	d.Set("www.sub-zone.example.")
+	for i := 0; i < b.N; i++ {
+		d.MarshalText()
+	}
+}

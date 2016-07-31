@@ -65,3 +65,11 @@ func Benchmark_StoreSize_String(b *testing.B) {
 		d.String()
 	}
 }
+
+func Benchmark_StoreSize_MarshalText(b *testing.B) {
+	d := new(StoreSize)
+	d.Set("12345Tio")
+	for i := 0; i < b.N; i++ {
+		d.MarshalText()
+	}
+}

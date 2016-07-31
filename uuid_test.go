@@ -85,6 +85,14 @@ func Benchmark_UUID_String(b *testing.B) {
 	}
 }
 
+func Benchmark_UUID_MarshalText(b *testing.B) {
+	d := new(UUID)
+	d.Set("de305d54-75b4-431b-adb2-eb6b9e546014")
+	for i := 0; i < b.N; i++ {
+		d.MarshalText()
+	}
+}
+
 func Benchmark_UUIDv1_TS(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		NewUUID(UUIDv1_timestamp)

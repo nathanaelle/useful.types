@@ -38,3 +38,26 @@ func Test_Duration(t *testing.T) {
 		}
 	}
 }
+
+func Benchmark_Duration_Set(b *testing.B) {
+	d := new(Duration)
+	for i := 0; i < b.N; i++ {
+		d.Set("2h45m")
+	}
+}
+
+func Benchmark_Duration_String(b *testing.B) {
+	d := new(Duration)
+	d.Set("2h45m")
+	for i := 0; i < b.N; i++ {
+		d.String()
+	}
+}
+
+func Benchmark_Duration_MarshalText(b *testing.B) {
+	d := new(Duration)
+	d.Set("2h45m")
+	for i := 0; i < b.N; i++ {
+		d.MarshalText()
+	}
+}

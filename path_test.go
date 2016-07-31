@@ -40,3 +40,26 @@ func Test_Path(t *testing.T) {
 		}
 	}
 }
+
+func Benchmark_Path_Set(b *testing.B) {
+	d := new(Path)
+	for i := 0; i < b.N; i++ {
+		d.Set("_test_data/exist/some-file")
+	}
+}
+
+func Benchmark_Path_String(b *testing.B) {
+	d := new(Path)
+	d.Set("_test_data/exist/some-file")
+	for i := 0; i < b.N; i++ {
+		d.String()
+	}
+}
+
+func Benchmark_Path_MarshalText(b *testing.B) {
+	d := new(Path)
+	d.Set("_test_data/exist/some-file")
+	for i := 0; i < b.N; i++ {
+		d.MarshalText()
+	}
+}
