@@ -1,26 +1,19 @@
-package	types	// import "github.com/nathanaelle/useful.types"
+package types // import "github.com/nathanaelle/useful.types"
 
-
-import	(
-	"testing"
+import (
+	"encoding"
+	"encoding/json"
 	"flag"
 	"fmt"
-	"encoding/json"
-	"encoding"
+	"testing"
 )
 
-
-
-type	valid_t struct {
-	str	string
-	data	interface{}
+type valid_t struct {
+	str  string
+	data interface{}
 }
 
-
-
-
-
-func Has_All_Interfaces(t *testing.T,usefultype interface{})  {
+func Has_All_Interfaces(t *testing.T, usefultype interface{}) {
 	if !Is_fmt_stringer(usefultype) {
 		t.Errorf("not %25s  : %#v", "fmt.Stringer", usefultype)
 	}
@@ -47,38 +40,37 @@ func Has_All_Interfaces(t *testing.T,usefultype interface{})  {
 	}
 }
 
-
 func Is_encoding_textmarshaler(i interface{}) bool {
-	_,ok := i.(encoding.TextMarshaler)
+	_, ok := i.(encoding.TextMarshaler)
 	return ok
 }
 
 func Is_encoding_textunmarshaler(i interface{}) bool {
-	_,ok := i.(encoding.TextUnmarshaler)
+	_, ok := i.(encoding.TextUnmarshaler)
 	return ok
 }
 
 func Is_fmt_stringer(i interface{}) bool {
-	_,ok := i.(fmt.Stringer)
+	_, ok := i.(fmt.Stringer)
 	return ok
 }
 
 func Is_flag_value(i interface{}) bool {
-	_,ok := i.(flag.Value)
+	_, ok := i.(flag.Value)
 	return ok
 }
 
 func Is_flag_getter(i interface{}) bool {
-	_,ok := i.(flag.Getter)
+	_, ok := i.(flag.Getter)
 	return ok
 }
 
 func Is_json_marshaler(i interface{}) bool {
-	_,ok := i.(json.Marshaler)
+	_, ok := i.(json.Marshaler)
 	return ok
 }
 
 func Is_json_unmarshaler(i interface{}) bool {
-	_,ok := i.(json.Unmarshaler)
+	_, ok := i.(json.Unmarshaler)
 	return ok
 }
