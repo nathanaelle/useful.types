@@ -38,6 +38,11 @@ func Test_UUID(t *testing.T)  {
 			t.Errorf("[%v] invalid parse", d)
 		}
 
+		if val.str != d.String() {
+			t.Errorf("[%v] [%v] differs", val.str, d)
+		}
+
+
 		if data.String() != d.String() {
 			t.Errorf("[%v] [%v] differs", data, d)
 		}
@@ -76,6 +81,14 @@ func Benchmark_UUID_Set(b *testing.B) {
 	}
 }
 
+
+func Benchmark_UUID_String(b *testing.B) {
+	d	:= new(UUID)
+	d.Set("de305d54-75b4-431b-adb2-eb6b9e546014")
+	for i := 0; i < b.N; i++ {
+		d.String()
+	}
+}
 
 
 func Benchmark_UUIDv1_TS(b *testing.B) {

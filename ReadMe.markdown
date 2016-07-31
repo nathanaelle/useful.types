@@ -14,6 +14,8 @@ there are essentialy for the marshaling and unmarshaling of data with a minimum 
   * [x] [flag.Value](https://golang.org/pkg/flag/#Value)
   * [x] [json.Unmarshaler](https://golang.org/pkg/encoding/json/#Unmarshaler)
   * [x] [json.Marshaler](https://golang.org/pkg/encoding/json/#Marshaler)
+  * [ ] [encoding.TextMarshaler](https://golang.org/pkg/encoding/#TextMarshaler)
+  * [ ] [encoding.TextUnmarshaler](https://golang.org/pkg/encoding/#TextUnmarshaler)
   * [x] [toml.Unmarshaler](https://godoc.org/github.com/naoina/toml#Unmarshaler)
 
 

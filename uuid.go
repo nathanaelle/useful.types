@@ -2,7 +2,6 @@ package	types	// import "github.com/nathanaelle/useful.types"
 
 import	(
 	"net"
-	"fmt"
 	"time"
 	"bytes"
 	"errors"
@@ -54,58 +53,40 @@ func NewUUID(version byte) (uuid UUID, err error)  {
 
 	switch	version {
 		case	UUIDv1:
-			var	hw	[6]byte
-			buffer	:= bytes.NewBuffer(make([]byte,0,16))
-
-			copy(hw[:],HardWareAddress[0:6])
 			seq	:= atomic.AddUint32(&monotonic_v1, 1)
 			now	:= uint64(time.Now().UnixNano()/100 + 12219292800000)
-			err	= binary.Write(buffer, binary.BigEndian, uuidv1{ uint32(now), uint16(now>>32), uint16(now>>48), uint16(seq), hw })
-			if err !=nil {
-				return
-			}
-			t_uuid	:= buffer.Bytes()
-			t_uuid[6]= (t_uuid[6]&0x0f)|(UUIDv1)
-			t_uuid[8]= (t_uuid[8]&0x3f)|(UUID_RFC)
-			copy(uuid[:],t_uuid)
+			binary.BigEndian.PutUint32(uuid[0:4], uint32(now))
+			binary.BigEndian.PutUint16(uuid[4:6], uint16(now>>32))
+			binary.BigEndian.PutUint16(uuid[6:8], uint16(now>>48))
+			binary.BigEndian.PutUint16(uuid[8:10], uint16(seq))
+			copy(uuid[10:16], HardWareAddress[0:6])
+			uuid[6]= (uuid[6]&0x0f)|(UUIDv1)
+			uuid[8]= (uuid[8]&0x3f)|(UUID_RFC)
 			return
 
-
 		case	UUIDv1MacRand:
-			var	hw	[6]byte
-			buffer	:= bytes.NewBuffer(make([]byte,0,16))
-
 			seq	:= atomic.AddUint32(&monotonic_v1, 1)
 			now	:= uint64(time.Now().UnixNano()/100 + 12219292800000)
-			_, err = rand.Read(hw[:])
-			if err !=nil {
-				return
-			}
-			err	= binary.Write(buffer, binary.BigEndian, uuidv1{ uint32(now), uint16(now>>32), uint16(now>>48), uint16(seq), hw })
-			if err !=nil {
-				return
-			}
-			t_uuid	:= buffer.Bytes()
-			t_uuid[6]= (t_uuid[6]&0x0f)|(UUIDv1)
-			t_uuid[8]= (t_uuid[8]&0x3f)|(UUID_RFC)
-			copy(uuid[:],t_uuid)
+			binary.BigEndian.PutUint32(uuid[0:4], uint32(now))
+			binary.BigEndian.PutUint16(uuid[4:6], uint16(now>>32))
+			binary.BigEndian.PutUint16(uuid[6:8], uint16(now>>48))
+			binary.BigEndian.PutUint16(uuid[8:10], uint16(seq))
+			_, err = rand.Read(uuid[10:16])
+			uuid[6]= (uuid[6]&0x0f)|(UUIDv1)
+			uuid[8]= (uuid[8]&0x3f)|(UUID_RFC)
 			return
 
 		case	UUIDv1_timestamp:
-			buffer	:= bytes.NewBuffer(make([]byte,0,16))
-
 			seq	:= atomic.AddUint32(&monotonic_v1, 1)
 			now	:= uint64(time.Now().UnixNano()/100 + 12219292800000)
-			err	= binary.Write(buffer, binary.BigEndian, uuidv1{ uint32(now>>32), uint16(now>>16), uint16(now>>4), uint16(seq), [6]byte{0,0,0,0,0,0} })
-			if err !=nil {
-				return
-			}
-			t_uuid	:= buffer.Bytes()
-			t_uuid[6]= (t_uuid[6]&0x0f)|(UUIDv1)
-			t_uuid[8]= (t_uuid[8]&0x3f)|(UUID_RFC)
-			copy(uuid[:],t_uuid)
-			return
+			binary.BigEndian.PutUint32(uuid[0:4], uint32(now))
+			binary.BigEndian.PutUint16(uuid[4:6], uint16(now>>32))
+			binary.BigEndian.PutUint16(uuid[6:8], uint16(now>>48))
+			binary.BigEndian.PutUint16(uuid[8:10], uint16(seq))
 
+			uuid[6]= (uuid[6]&0x0f)|(UUIDv1)
+			uuid[8]= (uuid[8]&0x3f)|(UUID_RFC)
+			return
 
 		case	UUIDv4:
 			_, err = rand.Read(uuid[:])
@@ -131,8 +112,31 @@ func (d *UUID)UnmarshalTOML(data []byte) (err error) {
 	return d.byte_set(bytes.Trim(data,"\""))
 }
 
-func (d UUID)String() string {
-	return fmt.Sprintf("%x-%x-%x-%x-%x",d[0:4],d[4:6],d[6:8],d[8:10],d[10:16])
+func (d *UUID)MarshalText() ([]byte,error) {
+	return	d.byte_text(make([]byte,36)), nil
+}
+
+
+func (d *UUID)byte_text(t []byte) []byte {
+	if len(t) < 36 {
+		panic("UUID len too short")
+	}
+	hex.Encode(t[0:8], d[0:4])
+	t[8] = '-'
+	hex.Encode(t[9:13], d[4:6])
+	t[13] = '-'
+	hex.Encode(t[14:18], d[6:8])
+	t[18] = '-'
+	hex.Encode(t[19:23], d[8:10])
+	t[23] = '-'
+	hex.Encode(t[24:36], d[10:16])
+
+	return	t
+}
+
+
+func (d *UUID)String() string {
+	return string(d.byte_text(make([]byte,36)))
 }
 
 func (d *UUID)UnmarshalJSON(data []byte) (err error) {
@@ -140,7 +144,13 @@ func (d *UUID)UnmarshalJSON(data []byte) (err error) {
 }
 
 func (d *UUID)MarshalJSON() (data []byte,err error) {
-	return []byte("\""+d.String()+"\""),nil
+	t := make([]byte,38)
+	t[0] = '"'
+	t[37]= '"'
+
+	d.byte_text(t[1:37])
+
+	return t,nil
 }
 
 func (d *UUID)Set(data string) (err error) {
