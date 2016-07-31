@@ -58,36 +58,36 @@ func (d *FQDN) Set(t_fqdn string) (err error) {
 	hyphen	:= false
 	for pos,char := range t_fqdn {
 		switch	{
-			case char == '\\' :
-				dot	= false
-				hyphen	= false
+		case	char == '\\' :
+			dot	= false
+			hyphen	= false
 
-			case char == '-' :
-				if pos == 0 {
-					return	errors.New("begin with hyphen is forbidden for FQDN ["+t_fqdn+"]")
-				}
-				if (dot) {
-					return	errors.New("hyphen after dot is forbidden for FQDN ["+t_fqdn+"]")
-				}
-				dot	= false
-				hyphen	= true
+		case	char == '-' :
+			if pos == 0 {
+				return	errors.New("begin with hyphen is forbidden for FQDN ["+t_fqdn+"]")
+			}
+			if dot {
+				return	errors.New("hyphen after dot is forbidden for FQDN ["+t_fqdn+"]")
+			}
+			dot	= false
+			hyphen	= true
 
-			case char == '.' :
-				if (dot) {
-					return	errors.New("double dot is forbidden for FQDN ["+t_fqdn+"]")
-				}
-				if (hyphen) {
-					return	errors.New("dot after hyphen is forbidden for FQDN ["+t_fqdn+"]")
-				}
-				dot	= true
-				hyphen	= false
+		case	char == '.' :
+			if dot {
+				return	errors.New("double dot is forbidden for FQDN ["+t_fqdn+"]")
+			}
+			if hyphen {
+				return	errors.New("dot after hyphen is forbidden for FQDN ["+t_fqdn+"]")
+			}
+			dot	= true
+			hyphen	= false
 
-			case unicode.IsNumber(char) || unicode.IsLetter(char):
-				dot	= false
-				hyphen	= false
+		case	unicode.IsNumber(char) || unicode.IsLetter(char):
+			dot	= false
+			hyphen	= false
 
-			default:
-				return	errors.New("invalid char ["+string(char)+"] for FQDN ["+t_fqdn+"]")
+		default:
+			return	errors.New("invalid char ["+string(char)+"] for FQDN ["+t_fqdn+"]")
 		}
 	}
 
@@ -110,20 +110,20 @@ func (d *FQDN) Split() []string {
 
 	quote	:= false
 	for pos,char := range fqdn {
-		switch char {
-			case '\\':
-				quote = !quote
+		switch	char {
+		case	'\\':
+			quote = !quote
 
-			case '.':
-				if !quote {
-					if len(fqdn[begin:pos]) > 0 {
-						res	= append(res, fqdn[begin:pos] )
-					}
-					begin	= pos+1
+		case	'.':
+			if !quote {
+				if len(fqdn[begin:pos]) > 0 {
+					res	= append(res, fqdn[begin:pos] )
 				}
+				begin	= pos+1
+			}
 
-			default:
-				quote	= false
+		default:
+			quote	= false
 		}
 	}
 
@@ -147,19 +147,19 @@ func (d *FQDN) PathToRoot() []string {
 
 	quote	:= false
 	for pos,char := range fqdn {
-		switch char {
-			case '\\':
-				quote = !quote
+		switch	char {
+		case	'\\':
+			quote = !quote
 
-			case '.':
-				if !quote {
-					res	= append(res, fqdn[pos:end] )
-					last	= pos
-				}
-				quote = false
+		case	'.':
+			if !quote {
+				res	= append(res, fqdn[pos:end] )
+				last	= pos
+			}
+			quote = false
 
-			default:
-				quote = false
+		default:
+			quote = false
 		}
 	}
 
