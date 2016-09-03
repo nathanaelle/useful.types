@@ -6,7 +6,8 @@
 ## What is useful.types ?
 
 useful.types is a collection of types for golang
-there are essentialy for the marshaling and unmarshaling of data with a minimum of data verification
+There are essentialy for the marshaling and unmarshaling of data with a minimum of data verification
+useful.types provides also some useful functions.
 
 ## Implemented interfaces
 
@@ -14,8 +15,8 @@ there are essentialy for the marshaling and unmarshaling of data with a minimum 
   * [x] [flag.Value](https://golang.org/pkg/flag/#Value)
   * [x] [json.Unmarshaler](https://golang.org/pkg/encoding/json/#Unmarshaler)
   * [x] [json.Marshaler](https://golang.org/pkg/encoding/json/#Marshaler)
-  * [ ] [encoding.TextMarshaler](https://golang.org/pkg/encoding/#TextMarshaler)
-  * [ ] [encoding.TextUnmarshaler](https://golang.org/pkg/encoding/#TextUnmarshaler)
+  * [x] [encoding.TextMarshaler](https://golang.org/pkg/encoding/#TextMarshaler)
+  * [x] [encoding.TextUnmarshaler](https://golang.org/pkg/encoding/#TextUnmarshaler)
   * [x] [toml.Unmarshaler](https://godoc.org/github.com/naoina/toml#Unmarshaler)
 
 
